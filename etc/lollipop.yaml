@@ -1,0 +1,17 @@
+---
+keys:
+  - {id_rsa:            null}
+  - {id_rsa_password:   lollipop}
+
+acls:
+  default:
+    - {default:         accept}
+
+  id_rsa:
+    - {127.0.0.0/8:     accept}
+    - {172.23.32.0/20:  accept}
+    - {default:         reject}
+
+  id_rsa_password:
+    - {127.0.0.1/8:     reject}
+    - {default:         accept}
