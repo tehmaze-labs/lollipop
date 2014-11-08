@@ -10,7 +10,7 @@ from .buffer import Buffer
 logger = logging.getLogger(__name__)
 
 
-class Identity(object):
+class Identity:
     type = None
     marker = (
         b'-----BEGIN ',
@@ -118,7 +118,7 @@ class RSAIdentity(Identity):
         return output
 
 
-class Identities(object):
+class Identities:
     def __init__(self):
         self.identities = []
 

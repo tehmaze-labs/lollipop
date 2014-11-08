@@ -7,7 +7,7 @@ from .operatingsystem import operatingsystem
 DEFAULT_READ_SIZE = 1024
 
 
-class Remote(object):
+class Remote:
     def __init__(self, remote, server=True):
         self.remote = remote
         self.server = server

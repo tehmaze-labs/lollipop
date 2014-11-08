@@ -142,7 +142,7 @@ def load_der(pem, pem_marker=b'PUBLIC KEY', password=None):
         return cipher.new(key, mode, salt).decrypt(data)
 
 
-class Key(object):
+class Key:
     def __init__(self):
         security.ensure_gc()
 

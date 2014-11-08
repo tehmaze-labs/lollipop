@@ -53,7 +53,7 @@ SSH_AGENT = dict(
 SSH_AGENT_MAP = dict((v, k) for k, v in SSH_AGENT.items())
 
 
-class Packet(object):
+class Packet:
     def __init__(self, request_type, request, remote):
         self.type = request_type
         self.request = request
@@ -208,7 +208,7 @@ class AgentSocket(Remote):
         return remote
 
 
-class Agent(object):
+class Agent:
     def __init__(self, path, config):
         self.path = path
         self.config = config

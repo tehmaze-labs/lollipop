@@ -6,7 +6,7 @@ import socket
 logger = logging.getLogger(__name__)
 
 
-class BaseMultiplexer(object):
+class BaseMultiplexer:
     def __init__(self):
         self.remotes = {}
 
