@@ -3,12 +3,19 @@ lollipop
 
 Python 3 ssh agent that allows ACL-based key access.
 
+This project is not intended for production use, and is mostly research into
+the inner workings of the *SSH agent protocol*. For learning purposes only!
 
 WARNING
 -------
 
-*Do not use this for production purposes, storing private encryption keys in
-Python is NOT secure.*
+**Do not use this for production purposes, storing private encryption keys in
+Python is NOT secure.**
+
+**Python's garbage collection does NOT guarantee private keys to be removed
+from memory if they are no longer being used.**
+
+**This daemon is NOT secure.**
 
 
 Features
