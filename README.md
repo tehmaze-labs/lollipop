@@ -10,10 +10,8 @@ WARNING
 -------
 
 **Do not use this for production purposes, storing private encryption keys in
-Python is NOT secure.**
-
-**Python's garbage collection does NOT guarantee private keys to be removed
-from memory if they are no longer being used.**
+Python is NOT secure. Python's garbage collection process does NOT guarantee
+private keys to be removed from memory if they are no longer being used.**
 
 **This daemon is NOT secure.**
 
