@@ -4,6 +4,7 @@ import socket
 import struct
 import tempfile
 
+from . import security
 from .buffer import Buffer
 from .remote import Remote
 from .key import Key, DSA, ECDSA, RSA
@@ -133,15 +134,18 @@ class AgentClient(Remote):
         self.send_buffer.put_str(value)
 
     def handle_read(self, read_size=None):
-        self.handle_packet(Packet.new(self))
+        packet = Packet.new(self)
+        try:
+            self.handle_packet(packet)
+        finally:
+            del packet
+            security.gc()
 
     def handle_packet(self, packet):
         if packet is None:
             raise socket.error('Invalid read')
 
-        print(packet)
         packet_type = SSH_AGENTC_MAP.get(packet.type, 'INVALID')
-
         if self.agent.locked and packet_type != 'UNLOCK':
             self.put_int(1)
             self.put_chr(SSH_AGENT['FAILURE'])
@@ -152,6 +156,7 @@ class AgentClient(Remote):
 
         elif packet.type == SSH_AGENTC['SSH2_ADD_IDENTITY']:
             self.agent.process_add_identity(self, packet)
+            del packet
 
         elif packet.type == SSH_AGENTC['SSH2_REQUEST_IDENTITIES']:
             self.agent.process_request_identities(self)
@@ -164,6 +169,7 @@ class AgentClient(Remote):
 
         elif packet.type == SSH_AGENTC['SSH2_SIGN_REQUEST']:
             self.agent.process_sign_request(self, packet)
+            del packet
 
         else:
             logger.error('Invalid request {} ({:02x})'.format(

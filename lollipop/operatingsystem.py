@@ -1,3 +1,4 @@
+import ctypes
 import io
 import ipaddress
 import logging
@@ -104,6 +105,20 @@ class Linux(OperatingSystem):
                             yield ipaddress.IPv4Address(payload['dst'][0])
                         else:
                             yield ipaddress.IPv6Address(payload['dst'])
+
+    @property
+    def libc(self):
+        if not hasattr(self, '_libc'):
+            for lib in ('libc.so.7', 'libc.so.6', 'libc.so.5'):
+                try:
+                    self._libc = ctypes.CDLL(lib)
+                except OSError:
+                    pass
+        return self._libc
+
+    @property
+    def memset(self):
+        return self.libc.memset
 
 
 def get_operatingsystem():

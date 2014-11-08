@@ -3,6 +3,7 @@ import hashlib
 import logging
 import os
 
+from . import security
 from .key import Key, DSA, ECDSA, RSA, load_der
 from .buffer import Buffer
 
@@ -167,6 +168,9 @@ class Identities(object):
         logger.info('removing identity {}'.format(identity))
         if identity in self.identities:
             self.identities.remove(identity)
+            del identity.key
+            del identity
+            security.gc()
 
     def remove_key(self, key):
         for identity in self.identities:

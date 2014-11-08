@@ -11,6 +11,7 @@ from pyasn1.codec.ber import decoder as ber_decoder
 from pyasn1.codec.der import decoder as der_decoder
 from pyasn1.codec.der import encoder as der_encoder
 
+from . import security
 from .asn1 import (
     DSAPrivateKey,
     ECPrivateKey,
@@ -142,8 +143,8 @@ def load_der(pem, pem_marker=b'PUBLIC KEY', password=None):
 
 
 class Key(object):
-    def __init__(self, key):
-        pass
+    def __init__(self):
+        security.ensure_gc()
 
     def __repr__(self):
         return '<{} {} ({})>'.format(
@@ -154,9 +155,7 @@ class Key(object):
 
     @classmethod
     def from_blob(cls, blob):
-        print('Key.from_blob', blob)
         key_type = blob.pop_str()
-        print('key.from_blob', key_type)
         if key_type == b'ssh-dss':
             return DSA.from_blob(blob)
         elif key_type == b'ssh-rsa':
@@ -184,6 +183,7 @@ class Key(object):
 
 class DSA(Key):
     def __init__(self, p, q, g, public, private=None):
+        super(DSA, self).__init__()
         self.p = p
         self.q = q
         self.g = g
@@ -191,7 +191,6 @@ class DSA(Key):
         self.private = private
 
     def __eq__(self, other):
-        print(repr(self), '==', repr(other))
         if not isinstance(other, self.__class__):
             return False
         else:
@@ -265,6 +264,7 @@ class ECDSA(Key):
     }
 
     def __init__(self, private_key, named_curve):
+        super(ECDSA, self).__init__()
         self.private_key = private_key
         self.named_curve = named_curve
         self.verifyingKey = self.private_key.verifying_key
@@ -279,8 +279,6 @@ class ECDSA(Key):
         curve = cls.curves[named_curve]
         group = blob.pop_mpint()
         eckey = blob.pop_mpint()
-        print('group', repr(group))
-        print('remain', blob)
         keydata = dict(
             named_curve=named_curve,
             private_key=SigningKey.from_secret_exponent(eckey, curve),
@@ -298,7 +296,9 @@ class ECDSA(Key):
                 str(keyinfo.getComponentByName('named_curve'))
             ],
         )
-        print(repr(keydata))
+        del keyinfo
+        del padding
+        security.gc()
         return cls(**keydata)
 
     @property
@@ -319,6 +319,7 @@ class ECDSA(Key):
 
 class RSA(Key):
     def __init__(self, n, e, d=None, iqmp=None, p=None, q=None):
+        super(RSA, self).__init__()
         self.n = n
         self.e = e
         self.d = d
@@ -343,6 +344,13 @@ class RSA(Key):
                 self.e == other.e
             )
 
+    def __del__(self):
+        security.bzero(self.d)
+        security.bzero(self.iqmp)
+        security.bzero(self.p)
+        security.bzero(self.q)
+        security.gc()
+
     @classmethod
     def from_blob(cls, blob):
         keydata = dict()
@@ -353,6 +361,7 @@ class RSA(Key):
                 keydata[attr] = blob.pop_mpint()
             except IndexError:
                 break
+        security.gc()
         return cls(**keydata)
 
     @classmethod
@@ -366,6 +375,8 @@ class RSA(Key):
             p=int(keylist[4]),
             q=int(keylist[5]),
         )
+        del keylist
+        security.gc()
         return cls(**keydata)
 
     @property
