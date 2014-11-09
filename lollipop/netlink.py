@@ -122,7 +122,7 @@ def build_inet_diag_request(family, protocol, ext, pad, states):
     ) + build_socket_id()
 
 
-def build_sock_diag(payload, seq, pid=0):
+def build_sock_diag(payload, seq=201527, pid=0):
     return build_message(
         SOCK_DIAG_BY_FAMILY,
         payload,

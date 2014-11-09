@@ -71,8 +71,6 @@ class Linux(OperatingSystem):
             )
             headers = netlink.build_sock_diag(
                 payload,
-                random.randint(0, 0x100000),
-                os.getpid(),
             )
             request = socket.socket(
                 socket.AF_NETLINK,
@@ -96,6 +94,8 @@ class Linux(OperatingSystem):
                         break
                     elif message['type'] == netlink.ERROR:
                         raise ValueError(message)
+                    elif message['seq'] != 201527:
+                        break
 
                     payload_length = blob.tell() - 16 + message['length']
                     payload = netlink.parse_inet_diag_message(blob)
