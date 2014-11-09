@@ -120,7 +120,12 @@ class SelectMultiplexer(BaseMultiplexer):
 
         while self.remotes:
             filenos = self.remotes.keys()
-            r, w, x = select.select(filenos, filenos, filenos, timeout)
+            filenos_w = [
+                fileno
+                for fileno, remote in self.remotes.items()
+                if remote.send_buffer
+            ]
+            r, w, x = select.select(filenos, filenos_w, filenos, timeout)
 
             for fileno in x:
                 remote = self.remotes[fileno]
