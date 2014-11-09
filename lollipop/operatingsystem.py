@@ -104,7 +104,11 @@ class Linux(OperatingSystem):
                         if family == netlink.AF_INET:
                             yield ipaddress.IPv4Address(payload['dst'][0])
                         else:
-                            yield ipaddress.IPv6Address(payload['dst'])
+                            dst = 0
+                            for n in payload['dst']:
+                                dst <<= 32
+                                dst |= n
+                            yield ipaddress.IPv6Address(dst)
 
     @property
     def libc(self):
